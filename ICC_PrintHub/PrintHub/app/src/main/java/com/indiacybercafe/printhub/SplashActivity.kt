@@ -13,12 +13,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
+    
+    private val authManager = FirebaseAuthManager()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Enable Edge-to-Edge
         enableEdgeToEdge()
-        
         setContentView(R.layout.activity_splash)
 
         // Hide system bars for immersive mode
@@ -26,9 +26,13 @@ class SplashActivity : AppCompatActivity() {
         windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 
-        // 2-second delay to transition to MainActivity
+        // 2-second delay to check login state and transition
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
+            if (authManager.isUserLoggedIn()) {
+                startActivity(Intent(this, MainActivity::class.java))
+            } else {
+                startActivity(Intent(this, LoginActivity::class.java))
+            }
             finish()
         }, 2000)
     }
