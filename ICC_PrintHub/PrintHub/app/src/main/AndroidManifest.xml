@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
         android:name=".PrintHubApp"
@@ -32,6 +40,50 @@
 
         <activity
             android:name=".MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".NotificationsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AllFilesActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ComingSoonActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PrintSettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SummaryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AddressActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AddAddressActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ManageAccountActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PlaceOrderActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".UploadProcessingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".OrderSuccessActivity"
             android:exported="false" />
             
     </application>

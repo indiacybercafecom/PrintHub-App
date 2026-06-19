@@ -4,6 +4,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.SpannableString
 import android.text.Spanned
@@ -18,11 +20,13 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthProvider
@@ -35,9 +39,14 @@ class LoginActivity : AppCompatActivity() {
     private var verificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
     private var resendTimer: CountDownTimer? = null
+    
+    // Timeout handler for OTP requests
+    private val handler = Handler(Looper.getMainLooper())
+    private var timeoutRunnable: Runnable? = null
 
     companion object {
         private const val TAG = "LoginActivity"
+        private const val REQUEST_TIMEOUT_MS = 30000L
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,9 +55,17 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
+        // Premium Edge-to-Edge: Handle status bar, navigation bar, and keyboard
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            
+            v.updatePadding(
+                top = systemBars.top,
+                bottom = maxOf(systemBars.bottom, ime.bottom),
+                left = systemBars.left,
+                right = systemBars.right
+            )
             insets
         }
 
@@ -56,18 +73,31 @@ class LoginActivity : AppCompatActivity() {
         setupListeners()
         setupOtpInputs()
         setupFooter()
+        setupBackNavigation()
         runEntranceAnimations()
     }
 
     private fun setupUI() {
         binding.etPhoneNumber.requestFocus()
-        // Ensure progress bar is hidden initially
         binding.progressBar.visibility = View.GONE
+    }
+
+    private fun setupBackNavigation() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.otpSection.visibility == View.VISIBLE) {
+                    showMobileInput() // Also resets state
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     private fun runEntranceAnimations() {
         val fadeIn = AlphaAnimation(0f, 1f).apply {
-            duration = 250
+            duration = 400
             fillAfter = true
         }
         binding.headerLayout.startAnimation(fadeIn)
@@ -78,6 +108,8 @@ class LoginActivity : AppCompatActivity() {
         binding.btnSendOtp.setOnClickListener {
             val phone = binding.etPhoneNumber.text.toString().trim()
             if (phone.length == 10) {
+                // Clear any previous state before a fresh send
+                resetVerificationState()
                 sendOtp("+91$phone", null)
             } else {
                 binding.etPhoneNumber.error = "Enter valid 10-digit mobile number"
@@ -106,17 +138,31 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setLoading(isLoading: Boolean, message: String = "") {
+        // Cancel existing timeout if any
+        timeoutRunnable?.let { handler.removeCallbacks(it) }
+
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.btnSendOtp.isEnabled = !isLoading
         binding.btnVerifyOtp.isEnabled = !isLoading
         binding.etPhoneNumber.isEnabled = !isLoading
         
-        if (isLoading && message.isNotEmpty()) {
-            if (binding.mobileInputSection.visibility == View.VISIBLE) {
-                binding.btnSendOtp.text = message
-            } else {
-                binding.btnVerifyOtp.text = message
+        if (isLoading) {
+            if (message.isNotEmpty()) {
+                if (binding.mobileInputSection.visibility == View.VISIBLE) {
+                    binding.btnSendOtp.text = message
+                } else {
+                    binding.btnVerifyOtp.text = message
+                }
             }
+            
+            // Set 30s timeout to prevent infinite loading
+            timeoutRunnable = Runnable {
+                if (binding.progressBar.visibility == View.VISIBLE) {
+                    setLoading(false)
+                    Toast.makeText(this, "Unable to send OTP. Please try again.", Toast.LENGTH_LONG).show()
+                }
+            }
+            handler.postDelayed(timeoutRunnable!!, REQUEST_TIMEOUT_MS)
         } else {
             binding.btnSendOtp.text = "Send OTP"
             binding.btnVerifyOtp.text = "Verify OTP"
@@ -135,7 +181,6 @@ class LoginActivity : AppCompatActivity() {
                 startResendTimer()
             },
             onVerificationCompleted = { credential ->
-                // Instant verification or auto-retrieval
                 Log.d(TAG, "Instant verification triggered")
                 authManager.signInWithCredential(credential,
                     onSuccess = {
@@ -156,15 +201,7 @@ class LoginActivity : AppCompatActivity() {
                 val message = when (e) {
                     is FirebaseAuthInvalidCredentialsException -> "Invalid phone number format."
                     is FirebaseTooManyRequestsException -> "Too many requests. Please try again later."
-                    else -> {
-                        if (e.message?.contains("initial state", ignoreCase = true) == true) {
-                            "Configuration Error: Please ensure you've added SHA-1 and SHA-256 to Firebase Console."
-                        } else if (e.message?.contains("app identifier", ignoreCase = true) == true) {
-                            "SafetyNet/Play Integrity check failed. Check SHA keys in Firebase."
-                        } else {
-                            e.localizedMessage ?: "Verification failed. Check your internet."
-                        }
-                    }
+                    else -> e.localizedMessage ?: "Verification failed. Check your internet."
                 }
                 
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show()
@@ -191,7 +228,12 @@ class LoginActivity : AppCompatActivity() {
                 }
             )
         } else {
-            Toast.makeText(this, "Please enter 6-digit OTP", Toast.LENGTH_SHORT).show()
+            if (verificationId == null) {
+                Toast.makeText(this, "Session expired. Send OTP again.", Toast.LENGTH_SHORT).show()
+                showMobileInput()
+            } else {
+                Toast.makeText(this, "Please enter 6-digit OTP", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -224,15 +266,36 @@ class LoginActivity : AppCompatActivity() {
         binding.cardTitle.text = "Enter OTP"
         binding.cardSubtitle.text = "We've sent a code to your phone"
         
+        clearOtpInputs()
         binding.otp1.requestFocus()
     }
 
     private fun showMobileInput() {
+        resetVerificationState()
         binding.otpSection.visibility = View.GONE
         binding.mobileInputSection.visibility = View.VISIBLE
         binding.cardTitle.text = "Welcome Back"
         binding.cardSubtitle.text = "Sign in with your mobile number"
         binding.etPhoneNumber.requestFocus()
+    }
+
+    private fun resetVerificationState() {
+        verificationId = null
+        resendToken = null
+        resendTimer?.cancel()
+        resendTimer = null
+        setLoading(false)
+        clearOtpInputs()
+        timeoutRunnable?.let { handler.removeCallbacks(it) }
+    }
+
+    private fun clearOtpInputs() {
+        binding.otp1.setText("")
+        binding.otp2.setText("")
+        binding.otp3.setText("")
+        binding.otp4.setText("")
+        binding.otp5.setText("")
+        binding.otp6.setText("")
     }
 
     private fun startResendTimer() {
@@ -350,7 +413,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        resetVerificationState()
         super.onDestroy()
-        resendTimer?.cancel()
     }
 }

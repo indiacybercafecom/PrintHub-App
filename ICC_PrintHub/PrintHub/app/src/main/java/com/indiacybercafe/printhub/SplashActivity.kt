@@ -7,9 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
@@ -18,13 +15,10 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Enable edge-to-edge for premium feel. 
+        // No manual inset padding applied here to allow splash logo/bg to fill the screen.
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
-
-        // Hide system bars for immersive mode
-        val windowInsetsController = ViewCompat.getWindowInsetsController(window.decorView) ?: return
-        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 
         // 2-second delay to check login state and transition
         Handler(Looper.getMainLooper()).postDelayed({
@@ -33,6 +27,7 @@ class SplashActivity : AppCompatActivity() {
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
             }
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
         }, 2000)
     }

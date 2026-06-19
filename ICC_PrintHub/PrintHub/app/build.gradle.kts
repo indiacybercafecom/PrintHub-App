@@ -51,7 +51,29 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.messaging)
     implementation(libs.firebase.appcheck.playintegrity)
+
+    // Glide
+    implementation(libs.glide)
+    annotationProcessor(libs.glide.compiler)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.guava)
+    implementation(libs.listenablefuture)
+
+    // Razorpay
+    implementation(libs.razorpay)
+
+    // Architecture Components
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.livedata)
+
+    // Lottie
+    implementation(libs.lottie)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
