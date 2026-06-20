@@ -77,6 +77,15 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- Subtle Bottom Divider -->
+        <View
+            android:id="@+id/headerDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/header_divider"
+            app:layout_constraintTop_toBottomOf="@id/headerContent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.core.widget.NestedScrollView

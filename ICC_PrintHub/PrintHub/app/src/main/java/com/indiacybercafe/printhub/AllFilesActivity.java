@@ -30,6 +30,7 @@ public class AllFilesActivity extends AppCompatActivity {
     private ActivityAllFilesBinding binding;
     private List<FileModel> selectedFiles = new ArrayList<>();
     private SelectedFilesAdapter adapter;
+    private String[] currentMimeTypes;
 
     private final ActivityResultLauncher<String[]> filePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.OpenMultipleDocuments(),
@@ -74,21 +75,10 @@ public class AllFilesActivity extends AppCompatActivity {
 
         setupToolbar();
         setupRecyclerView();
+        setupMimeTypes();
 
         binding.btnUpload.setOnClickListener(v -> {
-            String[] mimeTypes = {
-                    "application/pdf",
-                    "application/msword",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "application/vnd.ms-excel",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    "application/vnd.ms-powerpoint",
-                    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                    "image/*",
-                    "text/plain",
-                    "application/zip"
-            };
-            filePickerLauncher.launch(mimeTypes);
+            filePickerLauncher.launch(currentMimeTypes);
         });
 
         binding.btnContinue.setOnClickListener(v -> {
@@ -96,6 +86,68 @@ public class AllFilesActivity extends AppCompatActivity {
             intent.putExtra("files", (Serializable) selectedFiles);
             startActivity(intent);
         });
+
+        // Auto-launch picker if opened from a specific category
+        if (getIntent().hasExtra("action") && !"all_files".equals(getIntent().getStringExtra("action"))) {
+            filePickerLauncher.launch(currentMimeTypes);
+        }
+    }
+
+    private void setupMimeTypes() {
+        String action = getIntent().getStringExtra("action");
+        if (action == null) action = "all_files";
+
+        switch (action) {
+            case "pdf":
+                currentMimeTypes = new String[]{"application/pdf"};
+                binding.toolbar.setTitle("Select PDF Files");
+                break;
+            case "camera":
+            case "gallery":
+                currentMimeTypes = new String[]{"image/*"};
+                binding.toolbar.setTitle("Select Images");
+                break;
+            case "id_card":
+                currentMimeTypes = new String[]{"application/pdf", "image/*"};
+                binding.toolbar.setTitle("Select ID Card (PDF/Image)");
+                break;
+            case "doc":
+                currentMimeTypes = new String[]{
+                        "application/msword",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                };
+                binding.toolbar.setTitle("Select Word Docs");
+                break;
+            case "xls":
+                currentMimeTypes = new String[]{
+                        "application/vnd.ms-excel",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                };
+                binding.toolbar.setTitle("Select Excel Sheets");
+                break;
+            case "ppt":
+                currentMimeTypes = new String[]{
+                        "application/vnd.ms-powerpoint",
+                        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                };
+                binding.toolbar.setTitle("Select PPT Slides");
+                break;
+            default:
+                currentMimeTypes = new String[]{
+                        "application/pdf",
+                        "application/msword",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "application/vnd.ms-excel",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "application/vnd.ms-powerpoint",
+                        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                        "image/*",
+                        "text/plain",
+                        "application/zip"
+                };
+                binding.toolbar.setTitle("All Files");
+                break;
+        }
     }
 
     private void setupToolbar() {

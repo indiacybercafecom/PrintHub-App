@@ -19,6 +19,7 @@
 
     <!-- Status Colors -->
     <color name="divider">#E5D5C8</color>
+    <color name="header_divider">#D8CBB8</color>
     <color name="success">#4CAF50</color>
     <color name="error">#E53935</color>
 

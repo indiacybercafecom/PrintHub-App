@@ -13,6 +13,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.indiacybercafe.printhub.databinding.FragmentHomeBinding
@@ -95,12 +96,9 @@ class HomeFragment : Fragment() {
 
     private fun handleServiceClick(service: ServiceModel) {
         when (service.action) {
-            "all_files" -> {
-                startActivity(Intent(requireContext(), AllFilesActivity::class.java))
-            }
-            "camera", "pdf", "gallery", "doc", "xls", "ppt", "id_card" -> {
-                val intent = Intent(requireContext(), ComingSoonActivity::class.java)
-                intent.putExtra("title", service.title)
+            "all_files", "camera", "pdf", "gallery", "doc", "xls", "ppt", "id_card" -> {
+                val intent = Intent(requireContext(), AllFilesActivity::class.java)
+                intent.putExtra("action", service.action)
                 startActivity(intent)
             }
             else -> {}
