@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "656827827016",
+    "firebase_url": "https://icc-printhub-default-rtdb.firebaseio.com",
+    "project_id": "icc-printhub",
+    "storage_bucket": "icc-printhub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656827827016:android:667ce9c9ccc0d8b59d697d",
+        "android_client_info": {
+          "package_name": "com.indiacybercafe.printhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBye9B_LhiVlCFXFMlm3UTgAauY8atrxrY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
