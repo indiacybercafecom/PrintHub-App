@@ -44,23 +44,37 @@
                     android:id="@+id/ivProfilePhoto"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="4dp"
+                    android:padding="2dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/profile"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
                     app:strokeColor="@color/primary"
-                    app:strokeWidth="2dp" />
+                    app:strokeWidth="1dp" />
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                <!-- Circular Profile Edit Button -->
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/fabEditPhoto"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_gravity="bottom|end"
-                    android:layout_margin="4dp"
-                    app:fabSize="mini"
-                    app:srcCompat="@drawable/camara"
-                    app:tint="@color/white"
-                    app:backgroundTint="@color/primary"/>
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/primary"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="2dp"
+                    app:rippleColor="#40FFFFFF">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/edit"
+                        app:tint="@color/white"
+                        android:contentDescription="Edit Profile Photo" />
+
+                </com.google.android.material.card.MaterialCardView>
 
             </FrameLayout>
 

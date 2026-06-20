@@ -41,6 +41,34 @@
                     app:strokeColor="@color/primary"
                     app:strokeWidth="1dp" />
 
+                <!-- Profile Photo Edit Button -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnEditProfilePhoto"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/primary"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="2dp"
+                    app:rippleColor="#40FFFFFF"
+                    app:layout_constraintBottom_toBottomOf="@id/ivProfilePhoto"
+                    app:layout_constraintEnd_toEndOf="@id/ivProfilePhoto"
+                    android:layout_marginBottom="-4dp"
+                    android:layout_marginEnd="-4dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/edit"
+                        app:tint="@color/white"
+                        android:contentDescription="Edit Profile Photo" />
+
+                </com.google.android.material.card.MaterialCardView>
+
                 <TextView
                     android:id="@+id/tvFullName"
                     android:layout_width="0dp"
