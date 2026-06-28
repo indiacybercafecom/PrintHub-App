@@ -21,6 +21,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.OrderViewH
 
     public interface OnOrderClickListener {
         void onTrackOrder(OrderModel order);
+        void onViewFiles(OrderModel order);
     }
 
     public OrdersAdapter(List<OrderModel> orders, OnOrderClickListener listener) {
@@ -57,34 +58,34 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.OrderViewH
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
         holder.binding.tvOrderDate.setText(sdf.format(new Date(order.getCreatedAt())));
 
-        setStatusBadge(holder, order.getStatus());
+        setStatusBadge(holder, order);
 
         holder.binding.btnTrackOrder.setOnClickListener(v -> listener.onTrackOrder(order));
+        holder.binding.btnViewFiles.setOnClickListener(v -> listener.onViewFiles(order));
     }
 
-    private void setStatusBadge(OrderViewHolder holder, String status) {
+    private void setStatusBadge(OrderViewHolder holder, OrderModel order) {
+        String status = order.getStatus();
         if (status == null) status = "Pending";
-        holder.binding.tvOrderStatus.setText(status);
-        int background;
+        
+        String paymentStatus = order.getPaymentStatus();
+        String paymentMethod = order.getPaymentMethod();
+        
+        String badgeText = status;
+        int background = R.drawable.bg_status_pending;
 
-        switch (status.toLowerCase()) {
-            case "pending":
-                background = R.drawable.bg_status_pending;
-                break;
-            case "printing":
-            case "accepted":
-                background = R.drawable.bg_status_printing;
-                break;
-            case "delivered":
-                background = R.drawable.bg_status_delivered;
-                break;
-            case "cancelled":
-                background = R.drawable.bg_status_cancelled;
-                break;
-            default:
-                background = R.drawable.bg_status_pending;
-                break;
+        if ("paid".equalsIgnoreCase(paymentStatus)) {
+            badgeText = "PAID";
+            background = R.drawable.bg_status_delivered; // Greenish
+        } else if ("cod".equalsIgnoreCase(paymentMethod)) {
+            badgeText = "COD";
+            background = R.drawable.bg_status_printing; // Yellowish/Gold
+        } else if ("failed".equalsIgnoreCase(paymentStatus)) {
+            badgeText = "FAILED";
+            background = R.drawable.bg_status_cancelled; // Red
         }
+
+        holder.binding.tvOrderStatus.setText(badgeText);
         holder.binding.tvOrderStatus.setBackgroundResource(background);
     }
 

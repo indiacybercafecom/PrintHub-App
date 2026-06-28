@@ -10,7 +10,11 @@ public class OrderModel implements Serializable {
     private AddressModel address;
     private String paymentId;
     private String paymentStatus;
-    private String status; // Pending, Accepted, Printing, Packed, Shipped, Delivered, Cancelled
+    private String paymentMethod; // "razorpay", "cod"
+    private String razorpayOrderId;
+    private String razorpayPaymentId;
+    private boolean codOrder;
+    private String status; // Pending, Accepted, Printing, Packed, Shipped, Delivered, Cancelled, Completed
     private double totalAmount;
     private double deliveryCharge;
     private double printingCharges;
@@ -33,6 +37,14 @@ public class OrderModel implements Serializable {
     public void setPaymentId(String paymentId) { this.paymentId = paymentId; }
     public String getPaymentStatus() { return paymentStatus; }
     public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    public String getRazorpayOrderId() { return razorpayOrderId; }
+    public void setRazorpayOrderId(String razorpayOrderId) { this.razorpayOrderId = razorpayOrderId; }
+    public String getRazorpayPaymentId() { return razorpayPaymentId; }
+    public void setRazorpayPaymentId(String razorpayPaymentId) { this.razorpayPaymentId = razorpayPaymentId; }
+    public boolean isCodOrder() { return codOrder; }
+    public void setCodOrder(boolean codOrder) { this.codOrder = codOrder; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public double getTotalAmount() { return totalAmount; }

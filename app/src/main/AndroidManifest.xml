@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
@@ -43,6 +44,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".OrderFilesActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".NotificationsActivity"
             android:exported="false" />
 
@@ -53,6 +58,16 @@
         <activity
             android:name=".ComingSoonActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".LegalActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PrintHub" />
+
+        <activity
+            android:name=".WebViewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PrintHub" />
 
         <activity
             android:name=".PrintSettingsActivity"
@@ -85,7 +100,32 @@
         <activity
             android:name=".OrderSuccessActivity"
             android:exported="false" />
-            
+
+        <activity
+            android:name=".PaymentActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PrintHub" />
+
+        <activity
+            android:name=".PaymentSuccessActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PrintHub" />
+
+        <activity
+            android:name=".PaymentFailedActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PrintHub" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>

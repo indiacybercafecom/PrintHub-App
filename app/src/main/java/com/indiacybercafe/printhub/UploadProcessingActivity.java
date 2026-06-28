@@ -162,35 +162,12 @@ public class UploadProcessingActivity extends AppCompatActivity {
     }
 
     private void saveOrderToDb() {
-        long timestamp = System.currentTimeMillis();
-        OrderModel order = new OrderModel();
-        order.setOrderId(orderId);
-        order.setUid(orderDraft.getUid());
-        order.setAddress(orderDraft.getAddress());
-        order.setPaymentId(orderDraft.getPaymentId());
-        order.setPaymentStatus("Success");
-        order.setStatus("Pending");
-        order.setTotalAmount(orderDraft.getTotalAmount());
-        order.setDeliveryCharge(orderDraft.getDeliveryCharge());
-        order.setPrintingCharges(orderDraft.getPrintingCharges());
-        order.setCreatedAt(timestamp);
-        order.setUpdatedAt(timestamp);
-        order.setGstType(orderDraft.getGstType());
-        order.setPrintSets(orderDraft.getPrintSets());
-
-        database.child("orders").child(orderId).setValue(order)
-                .addOnSuccessListener(aVoid -> {
-                    database.child("users").child(orderDraft.getUid()).child("orders").child(orderId).setValue(true);
-                    
-                    Intent intent = new Intent(this, OrderSuccessActivity.class);
-                    intent.putExtra("orderId", orderId);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to save order: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
+        Intent intent = new Intent(this, PaymentActivity.class);
+        intent.putExtra("orderDraft", orderDraft);
+        intent.putExtra("orderId", orderId);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private String generateOrderId() {

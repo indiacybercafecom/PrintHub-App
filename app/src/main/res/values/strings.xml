@@ -1,3 +1,45 @@
 <resources>
     <string name="app_name">PrintHub</string>
+    <string name="view_files">View Files</string>
+    <string name="order_files">Order Files</string>
+    <string name="track_order">Track Order</string>
+    <string name="no_files_found_for_this_order">No files found for this order</string>
+    <string name="order_completed_files_deleted">Your order has been completed. Your uploaded files have been permanently deleted from our server for privacy and security.</string>
+
+    <!-- Payment Page -->
+    <string name="secure_checkout">Secure Checkout</string>
+    <string name="order_summary">Order Summary</string>
+    <string name="order_id">Order ID</string>
+    <string name="files_uploaded">Files Uploaded</string>
+    <string name="print_charges">Print Charges</string>
+    <string name="delivery_charges">Delivery Charges</string>
+    <string name="coupon_discount">Coupon Discount</string>
+    <string name="grand_total">Grand Total</string>
+    <string name="choose_payment_method">Choose Payment Method</string>
+    <string name="razorpay">Razorpay</string>
+    <string name="razorpay_sub">UPI • Cards • NetBanking • Wallets</string>
+    <string name="razorpay_secure">100% Secure Payment</string>
+    <string name="cod">Cash On Delivery</string>
+    <string name="cod_sub">Pay after receiving your print order</string>
+    <string name="unavailable">Unavailable</string>
+    <string name="no_payment_available">No payment methods are currently available.\nPlease try again later.</string>
+    <string name="proceed_payment">Proceed Payment</string>
+    <string name="processing_payment">Processing Payment...</string>
+    <string name="creating_order">Creating Order...</string>
+    <string name="verifying_payment">Verifying Payment...</string>
+    <string name="uploading_order">Uploading Order...</string>
+    <string name="please_wait">Please Wait...</string>
+
+    <!-- Success/Failed -->
+    <string name="payment_successful">Payment Successful</string>
+    <string name="payment_failed">Payment Failed</string>
+    <string name="go_home">Go Home</string>
+    <string name="retry_payment">Retry Payment</string>
+    <string name="back">Back</string>
+    <string name="order_completed">Order Completed</string>
+    <string name="amount_paid">Amount Paid</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="transaction_error">Something went wrong with your transaction.\nPlease try again.</string>
 </resources>

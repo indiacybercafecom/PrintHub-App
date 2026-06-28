@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -55,6 +56,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.firebase.crashlytics)
 
     // Glide
     implementation(libs.glide)

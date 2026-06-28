@@ -1,9 +1,14 @@
 package com.indiacybercafe.printhub;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -16,6 +21,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -36,8 +43,16 @@ import com.indiacybercafe.printhub.databinding.ActivityManageAccountBinding;
 import com.indiacybercafe.printhub.models.UserProfile;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ManageAccountActivity extends AppCompatActivity {
@@ -47,28 +62,48 @@ public class ManageAccountActivity extends AppCompatActivity {
     private StorageReference storage;
     private String uid;
     private Uri imageUri;
+    private Uri cameraImageUri;
+
+    private final ActivityResultLauncher<String[]> permissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            result -> {
+                boolean allGranted = true;
+                for (Boolean granted : result.values()) {
+                    if (!granted) {
+                        allGranted = false;
+                        break;
+                    }
+                }
+                if (allGranted) {
+                    showImageSourceDialog();
+                } else {
+                    Toast.makeText(this, "Permissions are required to change profile photo", Toast.LENGTH_SHORT).show();
+                }
+            }
+    );
 
     private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     imageUri = result.getData().getData();
-                    Glide.with(this)
-                            .load(imageUri)
-                            .circleCrop()
-                            .into(binding.ivProfilePhoto);
+                    if (imageUri != null) {
+                        Glide.with(this)
+                                .load(imageUri)
+                                .circleCrop()
+                                .into(binding.ivProfilePhoto);
+                    }
                 }
             }
     );
 
-    private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
+    private final ActivityResultLauncher<Uri> cameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
             result -> {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Bitmap bitmap = (Bitmap) result.getData().getExtras().get("data");
-                    imageUri = getImageUri(bitmap);
+                if (result && cameraImageUri != null) {
+                    imageUri = cameraImageUri;
                     Glide.with(this)
-                            .load(bitmap)
+                            .load(imageUri)
                             .circleCrop()
                             .into(binding.ivProfilePhoto);
                 }
@@ -112,8 +147,40 @@ public class ManageAccountActivity extends AppCompatActivity {
         setupSpinners();
         loadUserProfile();
 
-        binding.fabEditPhoto.setOnClickListener(v -> showImageSourceDialog());
+        binding.fabEditPhoto.setOnClickListener(v -> checkAndRequestPermissions());
         binding.btnUpdateProfile.setOnClickListener(v -> updateProfile());
+    }
+
+    private void checkAndRequestPermissions() {
+        List<String> permissionsNeeded = new ArrayList<>();
+        permissionsNeeded.add(Manifest.permission.CAMERA);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_MEDIA_IMAGES);
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionLauncher.launch(permissionsNeeded.toArray(new String[0]));
+        } else {
+            boolean storageGranted;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                storageGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED;
+            } else {
+                storageGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+            }
+
+            if (storageGranted) {
+                showImageSourceDialog();
+            } else {
+                permissionLauncher.launch(permissionsNeeded.toArray(new String[0]));
+            }
+        }
     }
 
     private void setupToolbar() {
@@ -181,14 +248,36 @@ public class ManageAccountActivity extends AppCompatActivity {
                 .setTitle("Select Image Source")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        cameraLauncher.launch(intent);
+                        openCamera();
                     } else {
                         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                         galleryLauncher.launch(intent);
                     }
                 })
                 .show();
+    }
+
+    private void openCamera() {
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException ex) {
+            Toast.makeText(this, "Error occurred while creating the file", Toast.LENGTH_SHORT).show();
+        }
+
+        if (photoFile != null) {
+            cameraImageUri = FileProvider.getUriForFile(this,
+                    getApplicationContext().getPackageName() + ".fileprovider",
+                    photoFile);
+            cameraLauncher.launch(cameraImageUri);
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     private void updateProfile() {
@@ -229,7 +318,11 @@ public class ManageAccountActivity extends AppCompatActivity {
 
     private void uploadPhoto(String name, String email, String gender, String profession) {
         try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (bitmap == null) {
+                throw new IOException("Failed to decode bitmap");
+            }
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
             byte[] data = baos.toByteArray();
@@ -245,7 +338,9 @@ public class ManageAccountActivity extends AppCompatActivity {
                     });
         } catch (IOException e) {
             e.printStackTrace();
-            saveProfileToDatabase(name, email, gender, profession, null);
+            showLoading(false);
+            binding.btnUpdateProfile.setEnabled(true);
+            Toast.makeText(this, "Failed to process image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -295,13 +390,6 @@ public class ManageAccountActivity extends AppCompatActivity {
 
     private void showLoading(boolean loading) {
         binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
-    }
-
-    private Uri getImageUri(Bitmap bitmap) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "ProfilePhoto", null);
-        return Uri.parse(path);
     }
 
     @Override

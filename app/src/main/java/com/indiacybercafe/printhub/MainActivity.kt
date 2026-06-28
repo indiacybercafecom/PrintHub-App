@@ -1,11 +1,7 @@
 package com.indiacybercafe.printhub
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.indiacybercafe.printhub.databinding.ActivityMainBinding
 
@@ -20,24 +16,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Handle Safe Area Insets for Main Activity
-        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            
-            // Apply bottom padding to bottom navigation to respect gesture/nav bar
-            binding.bottomNavigation.updatePadding(
-                bottom = systemBars.bottom
-            )
-            
-            // Adjust fragment container to start after status bar and end before bottom nav
-            // Note: Since fragments handle their own top insets for headers, 
-            // we don't apply top padding here to avoid double spacing.
-            insets
-        }
 
         setupNavigation()
     }

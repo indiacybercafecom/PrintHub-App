@@ -21,12 +21,8 @@ import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthProvider
@@ -51,23 +47,8 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Premium Edge-to-Edge: Handle status bar, navigation bar, and keyboard
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-            
-            v.updatePadding(
-                top = systemBars.top,
-                bottom = maxOf(systemBars.bottom, ime.bottom),
-                left = systemBars.left,
-                right = systemBars.right
-            )
-            insets
-        }
 
         setupUI()
         setupListeners()

@@ -1,5 +1,6 @@
 package com.indiacybercafe.printhub;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,9 +63,24 @@ public class OrdersFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        adapter = new OrdersAdapter(orderList, order -> {
-            // Track order or view details logic
-            Toast.makeText(getContext(), "Tracking for " + order.getOrderId(), Toast.LENGTH_SHORT).show();
+        adapter = new OrdersAdapter(orderList, new OrdersAdapter.OnOrderClickListener() {
+            @Override
+            public void onTrackOrder(OrderModel order) {
+                // Track order or view details logic
+                Toast.makeText(getContext(), "Tracking for " + order.getOrderId(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onViewFiles(OrderModel order) {
+                if ("Completed".equalsIgnoreCase(order.getStatus())) {
+                    Toast.makeText(getContext(), "Your order has been completed. Your uploaded files have been permanently deleted from our server for privacy and security.", Toast.LENGTH_LONG).show();
+                } else {
+                    Intent intent = new Intent(getContext(), OrderFilesActivity.class);
+                    intent.putExtra("ORDER_ID", order.getOrderId());
+                    intent.putExtra("ORDER_OBJ", order);
+                    startActivity(intent);
+                }
+            }
         });
         binding.rvOrders.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvOrders.setAdapter(adapter);

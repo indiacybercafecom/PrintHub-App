@@ -26,7 +26,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="16dp"
-                android:src="@drawable/icon"
+                android:src="@drawable/icon_round"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -136,6 +136,103 @@
                 tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 tools:spanCount="4"
                 tools:listitem="@layout/item_service" />
+
+            <!-- Secure File Handling Card -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_secure_card"
+                android:elevation="2dp"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/imgShield"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_shield_lock"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/txtSecureTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="Secure File Handling"
+                    android:textColor="@color/primary"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:layout_constraintBottom_toBottomOf="@id/imgShield"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/imgShield"
+                    app:layout_constraintTop_toTopOf="@id/imgShield" />
+
+                <TextView
+                    android:id="@+id/txtSecureDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Your uploaded documents and images are used only for processing your print order. After your order has been successfully printed and delivered, all uploaded files are permanently deleted from our servers to protect your privacy and security."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="2sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/imgShield" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:chipSpacingHorizontal="8dp"
+                    app:chipSpacingVertical="8dp"
+                    app:layout_constraintTop_toBottomOf="@id/txtSecureDescription">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_trust_badge"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="✓ Secure Upload"
+                        android:textColor="@color/primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_trust_badge"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="✓ Privacy Protected"
+                        android:textColor="@color/primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_trust_badge"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="✓ Auto File Deletion"
+                        android:textColor="@color/primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

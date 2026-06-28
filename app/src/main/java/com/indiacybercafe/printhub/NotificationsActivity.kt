@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -28,25 +29,22 @@ class NotificationsActivity : AppCompatActivity() {
         binding = ActivityNotificationsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Handle Safe Area Insets for AppBarLayout
+        // Handle Safe Area Insets
         ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updatePadding(top = systemBars.top)
             insets
         }
 
-        // Handle Bottom Navigation Insets for RecyclerView
-        ViewCompat.setOnApplyWindowInsetsListener(binding.rvNotifications) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(bottom = systemBars.bottom)
-            insets
-        }
-
         database = FirebaseDatabase.getInstance().reference
+        setupToolbar()
         setupRecyclerView()
         fetchNotifications()
+    }
 
-        // Setup Toolbar back navigation
+    private fun setupToolbar() {
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
             finish()
         }

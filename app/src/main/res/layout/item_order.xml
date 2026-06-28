@@ -110,15 +110,36 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnTrackOrder"
-            style="@style/Widget.Material3.Button.TonalButton"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Track Order"
-            android:textColor="@color/primary"
-            app:cornerRadius="12dp" />
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTrackOrder"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="@string/track_order"
+                android:textColor="@color/primary"
+                app:cornerRadius="12dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewFiles"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="@string/view_files"
+                android:textColor="@color/primary"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

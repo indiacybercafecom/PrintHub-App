@@ -108,7 +108,7 @@ public class ProfileFragment extends Fragment {
         binding.menuLegal.ivOptionIcon.setImageResource(R.drawable.ic_legal);
         binding.menuLegal.tvOptionTitle.setText("Legal Pages");
         binding.menuLegal.cardOption.setOnClickListener(v -> 
-            startActivity(new Intent(getActivity(), ComingSoonActivity.class))
+            startActivity(new Intent(getActivity(), LegalActivity.class))
         );
     }
 

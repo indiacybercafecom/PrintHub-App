@@ -6,19 +6,20 @@
     <color name="grey">#808080</color>
 
     <!-- ICC PrintHub Official Palette -->
-    <color name="primary">#472825</color>
-    <color name="secondary">#96786F</color>
-    <color name="accent">#D3AB80</color>
-    <color name="light_accent">#FDE4BC</color>
-    <color name="background">#FFF4E2</color>
-    <color name="surface">#FFFFFF</color>
+    <color name="primary">#4A1F1F</color>
+    <color name="secondary">#6B3A33</color>
+    <color name="accent">#D8B77A</color>
+    <color name="light_accent">#F1D9B5</color>
+    <color name="background">#F6F0E3</color>
+    <color name="surface">#FBF8F3</color>
+    <color name="card_white">#FBF8F3</color>
 
     <!-- Text Colors -->
-    <color name="text_primary">#2D1B1B</color>
-    <color name="text_secondary">#6B5B53</color>
+    <color name="text_primary">#2E1A17</color>
+    <color name="text_secondary">#7A6A63</color>
 
     <!-- Status Colors -->
-    <color name="divider">#E5D5C8</color>
+    <color name="divider">#E4D8C8</color>
     <color name="header_divider">#D8CBB8</color>
     <color name="success">#4CAF50</color>
     <color name="error">#E53935</color>
