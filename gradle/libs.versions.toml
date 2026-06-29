@@ -19,6 +19,7 @@ razorpay = "1.6.40"
 lifecycle = "2.8.7"
 guava = "32.1.2-android"
 lottie = "6.7.1"
+poi = "5.2.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +48,9 @@ androidx-lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 listenablefuture = { group = "com.google.guava", name = "listenablefuture", version = "9999.0-empty-to-avoid-conflict-with-guava" }
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
+poi = { group = "org.apache.poi", name = "poi", version.ref = "poi" }
+poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poi" }
+poi-scratchpad = { group = "org.apache.poi", name = "poi-scratchpad", version.ref = "poi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

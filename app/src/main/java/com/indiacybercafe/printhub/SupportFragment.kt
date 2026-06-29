@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.indiacybercafe.printhub.BuildConfig
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -35,7 +36,7 @@ import java.util.*
 class SupportFragment : Fragment() {
 
     private var _binding: FragmentSupportBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding
 
     private var selectedImageUri: Uri? = null
     private var cameraImageUri: Uri? = null
@@ -68,7 +69,7 @@ class SupportFragment : Fragment() {
     }
 
     private fun displayImagePreview(uri: Uri) {
-        binding.ivScreenshotPreview.apply {
+        binding?.ivScreenshotPreview?.apply {
             visibility = View.VISIBLE
             Glide.with(this).load(uri).into(this)
         }
@@ -79,22 +80,26 @@ class SupportFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSupportBinding.inflate(inflater, container, false)
-        return binding.root
+        return _binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Handle Safe Area Insets for Toolbar
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(0, systemBars.top, 0, 0)
-            insets
+        binding?.appBarLayout?.let { appBarLayout ->
+            ViewCompat.setOnApplyWindowInsetsListener(appBarLayout) { v, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.setPadding(0, systemBars.top, 0, 0)
+                insets
+            }
         }
 
         setupFaq()
         setupCategoryDropdown()
         setupClickListeners()
+
+        binding?.tvAppVersion?.text = "Version ${BuildConfig.VERSION_NAME}"
     }
 
     private fun setupFaq() {
@@ -106,7 +111,7 @@ class SupportFragment : Fragment() {
             FaqModel("Can I recover deleted files?", "No. Deleted files cannot be recovered.")
         )
 
-        binding.rvFaq.apply {
+        binding?.rvFaq?.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = FaqAdapter(faqs)
         }
@@ -118,49 +123,49 @@ class SupportFragment : Fragment() {
             "Delivery Issue", "Refund Request", "Technical Problem", "Other"
         )
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, categories)
-        binding.actvCategory.setAdapter(adapter)
+        binding?.actvCategory?.setAdapter(adapter)
     }
 
     private fun setupClickListeners() {
-        binding.btnCallSupport.setOnClickListener { makeCall("+919203251821") }
-        binding.btnWhatsappSupport.setOnClickListener { openWhatsapp("+919203251821") }
-        binding.btnEmailSupport.setOnClickListener { sendEmail("printhub@indiacybercafe.com") }
+        binding?.btnCallSupport?.setOnClickListener { makeCall("+919203251821") }
+        binding?.btnWhatsappSupport?.setOnClickListener { openWhatsapp("+919203251821") }
+        binding?.btnEmailSupport?.setOnClickListener { sendEmail("printhub@indiacybercafe.com") }
         
-        binding.btnTrackOrder.setOnClickListener {
+        binding?.btnTrackOrder?.setOnClickListener {
             // Logic to track order or show search field
-            binding.mainSupport.smoothScrollTo(0, binding.tilOrderIdSearch.top)
-            binding.etOrderIdSearch.requestFocus()
+            binding?.mainSupport?.smoothScrollTo(0, binding?.tilOrderIdSearch?.top ?: 0)
+            binding?.etOrderIdSearch?.requestFocus()
         }
 
-        binding.btnTrackQuick.setOnClickListener {
-            val orderId = binding.etOrderIdSearch.text.toString()
+        binding?.btnTrackQuick?.setOnClickListener {
+            val orderId = binding?.etOrderIdSearch?.text.toString()
             if (orderId.isNotEmpty()) {
                 Toast.makeText(requireContext(), "Tracking Order: $orderId", Toast.LENGTH_SHORT).show()
                 // Implement actual tracking navigation if possible
             } else {
-                binding.tilOrderIdSearch.error = "Enter Order ID"
+                binding?.tilOrderIdSearch?.error = "Enter Order ID"
             }
         }
 
-        binding.btnOrderSupport.setOnClickListener {
-            val orderId = binding.etOrderIdSearch.text.toString()
+        binding?.btnOrderSupport?.setOnClickListener {
+            val orderId = binding?.etOrderIdSearch?.text.toString()
             if (orderId.isNotEmpty()) {
-                binding.etTicketOrderId.setText(orderId)
-                binding.mainSupport.smoothScrollTo(0, binding.tilCategory.top)
+                binding?.etTicketOrderId?.setText(orderId)
+                binding?.mainSupport?.smoothScrollTo(0, binding?.tilCategory?.top ?: 0)
             } else {
-                binding.tilOrderIdSearch.error = "Enter Order ID"
+                binding?.tilOrderIdSearch?.error = "Enter Order ID"
             }
         }
 
-        binding.btnUploadScreenshot.setOnClickListener {
+        binding?.btnUploadScreenshot?.setOnClickListener {
             checkAndRequestPermissions()
         }
 
-        binding.btnSubmitTicket.setOnClickListener {
+        binding?.btnSubmitTicket?.setOnClickListener {
             validateAndSubmit()
         }
 
-        binding.tvWebsite.setOnClickListener {
+        binding?.tvWebsite?.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://printhub.indiacybercafe.com"))
             startActivity(intent)
         }
@@ -217,25 +222,25 @@ class SupportFragment : Fragment() {
     }
 
     private fun validateAndSubmit() {
-        val category = binding.actvCategory.text.toString()
-        val orderId = binding.etTicketOrderId.text.toString()
-        val message = binding.etMessage.text.toString()
+        val category = binding?.actvCategory?.text.toString()
+        val orderId = binding?.etTicketOrderId?.text.toString()
+        val message = binding?.etMessage?.text.toString()
 
         if (category.isEmpty()) {
-            binding.tilCategory.error = "Select a category"
+            binding?.tilCategory?.error = "Select a category"
             return
         }
-        binding.tilCategory.error = null
+        binding?.tilCategory?.error = null
 
         if (message.isEmpty()) {
-            binding.tilMessage.error = "Please describe your issue"
+            binding?.tilMessage?.error = "Please describe your issue"
             return
         }
-        binding.tilMessage.error = null
+        binding?.tilMessage?.error = null
 
-        binding.btnSubmitTicket.isEnabled = false
-        binding.btnSubmitTicket.visibility = View.GONE
-        binding.progressBar.visibility = View.VISIBLE
+        binding?.btnSubmitTicket?.isEnabled = false
+        binding?.btnSubmitTicket?.visibility = View.GONE
+        binding?.progressBar?.visibility = View.VISIBLE
 
         if (selectedImageUri != null) {
             uploadImageAndSubmit(category, orderId, message)
@@ -248,12 +253,18 @@ class SupportFragment : Fragment() {
         val fileName = "ticket_${System.currentTimeMillis()}_${UUID.randomUUID()}"
         val ref = storage.child(fileName)
 
-        ref.putFile(selectedImageUri!!).addOnSuccessListener {
-            ref.downloadUrl.addOnSuccessListener { uri ->
-                submitToDatabase(category, orderId, message, uri.toString())
+        selectedImageUri?.let { uri ->
+            ref.putFile(uri).addOnSuccessListener {
+                ref.downloadUrl.addOnSuccessListener { downloadUri ->
+                    submitToDatabase(category, orderId, message, downloadUri.toString())
+                }
+            }.addOnFailureListener {
+                if (isAdded) {
+                    Toast.makeText(context, "Image upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+                submitToDatabase(category, orderId, message, "")
             }
-        }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Image upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
+        } ?: run {
             submitToDatabase(category, orderId, message, "")
         }
     }
@@ -276,23 +287,29 @@ class SupportFragment : Fragment() {
         )
 
         database.child(ticketId).setValue(ticket).addOnCompleteListener { task ->
+            if (_binding == null || !isAdded || view == null) return@addOnCompleteListener
+
             if (task.isSuccessful) {
-                Toast.makeText(requireContext(), "Ticket submitted successfully!", Toast.LENGTH_LONG).show()
+                context?.let {
+                    Toast.makeText(it, "Ticket submitted successfully!", Toast.LENGTH_LONG).show()
+                }
                 clearForm()
             } else {
-                Toast.makeText(requireContext(), "Submission failed", Toast.LENGTH_SHORT).show()
+                context?.let {
+                    Toast.makeText(it, "Submission failed", Toast.LENGTH_SHORT).show()
+                }
             }
-            binding.btnSubmitTicket.isEnabled = true
-            binding.btnSubmitTicket.visibility = View.VISIBLE
-            binding.progressBar.visibility = View.GONE
+            binding?.btnSubmitTicket?.isEnabled = true
+            binding?.btnSubmitTicket?.visibility = View.VISIBLE
+            binding?.progressBar?.visibility = View.GONE
         }
     }
 
     private fun clearForm() {
-        binding.actvCategory.setText("")
-        binding.etTicketOrderId.setText("")
-        binding.etMessage.setText("")
-        binding.ivScreenshotPreview.visibility = View.GONE
+        binding?.actvCategory?.setText("")
+        binding?.etTicketOrderId?.setText("")
+        binding?.etMessage?.setText("")
+        binding?.ivScreenshotPreview?.visibility = View.GONE
         selectedImageUri = null
     }
 

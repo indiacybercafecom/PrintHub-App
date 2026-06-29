@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.indiacybercafe.printhub.databinding.ActivityMainBinding
+import com.indiacybercafe.printhub.utils.GlobalUploadObserver
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var uploadObserver: GlobalUploadObserver
     private val homeFragment = HomeFragment()
     private val ordersFragment = OrdersFragment()
     private val supportFragment = SupportFragment()
@@ -18,6 +20,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        uploadObserver = GlobalUploadObserver(this)
+        uploadObserver.startObserving()
 
         setupNavigation()
     }

@@ -21,16 +21,17 @@ import com.indiacybercafe.printhub.databinding.FragmentHomeBinding
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding
     private lateinit var database: DatabaseReference
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
     private lateinit var serviceAdapter: ServiceAdapter
+    private var notificationListener: ValueEventListener? = null
 
     private val sliderHandler = Handler(Looper.getMainLooper())
     private val sliderRunnable = Runnable {
-        val currentItem = binding.heroViewPager.currentItem
+        val currentItem = binding?.heroViewPager?.currentItem ?: 0
         val nextItem = if (currentItem == heroImages.size - 1) 0 else currentItem + 1
-        binding.heroViewPager.setCurrentItem(nextItem, true)
+        binding?.heroViewPager?.setCurrentItem(nextItem, true)
     }
 
     private val heroImages = listOf(
@@ -44,17 +45,19 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
+        return _binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
         // Apply Safe Area Insets for Home Header
-        ViewCompat.setOnApplyWindowInsetsListener(binding.headerLayout) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(top = systemBars.top)
-            insets
+        binding?.headerLayout?.let { headerLayout ->
+            ViewCompat.setOnApplyWindowInsetsListener(headerLayout) { v, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.updatePadding(top = systemBars.top)
+                insets
+            }
         }
 
         database = FirebaseDatabase.getInstance().reference
@@ -63,16 +66,16 @@ class HomeFragment : Fragment() {
         setupHeroSection()
         setupServicesGrid()
 
-        binding.btnNotifications.setOnClickListener {
+        binding?.btnNotifications?.setOnClickListener {
             startActivity(Intent(requireContext(), NotificationsActivity::class.java))
         }
     }
 
     private fun setupHeroSection() {
         val heroAdapter = BannerAdapter(heroImages)
-        binding.heroViewPager.adapter = heroAdapter
+        binding?.heroViewPager?.adapter = heroAdapter
 
-        binding.heroViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding?.heroViewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 sliderHandler.removeCallbacks(sliderRunnable)
@@ -87,7 +90,7 @@ class HomeFragment : Fragment() {
             handleServiceClick(service)
         }
         
-        binding.rvServices.apply {
+        binding?.rvServices?.apply {
             layoutManager = GridLayoutManager(requireContext(), 4)
             setHasFixedSize(true)
             adapter = serviceAdapter
@@ -109,8 +112,10 @@ class HomeFragment : Fragment() {
         val uid = auth.currentUser?.uid ?: return
         val notificationsRef = database.child("notifications").child(uid)
 
-        notificationsRef.addValueEventListener(object : ValueEventListener {
+        notificationListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (_binding == null || !isAdded || view == null) return
+
                 var unreadCount = 0
                 for (data in snapshot.children) {
                     val isRead = data.child("isRead").getValue(Boolean::class.java) ?: true
@@ -118,11 +123,12 @@ class HomeFragment : Fragment() {
                         unreadCount++
                     }
                 }
-                binding.unreadDot.visibility = if (unreadCount > 0) View.VISIBLE else View.GONE
+                binding?.unreadDot?.visibility = if (unreadCount > 0) View.VISIBLE else View.GONE
             }
 
             override fun onCancelled(error: DatabaseError) {}
-        })
+        }
+        notificationsRef.addValueEventListener(notificationListener!!)
     }
 
     override fun onPause() {
@@ -136,6 +142,10 @@ class HomeFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        val uid = auth.currentUser?.uid
+        if (uid != null && notificationListener != null) {
+            database.child("notifications").child(uid).removeEventListener(notificationListener!!)
+        }
         super.onDestroyView()
         _binding = null
     }

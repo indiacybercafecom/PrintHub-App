@@ -13,8 +13,8 @@ android {
         applicationId = "com.indiacybercafe.printhub"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -37,6 +37,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -76,6 +77,11 @@ dependencies {
 
     // Lottie
     implementation(libs.lottie)
+
+    // Apache POI for document page detection
+    implementation(libs.poi)
+    implementation(libs.poi.ooxml)
+    implementation(libs.poi.scratchpad)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -19,6 +19,8 @@ import com.google.firebase.database.ValueEventListener
 import com.indiacybercafe.printhub.databinding.ActivityPaymentBinding
 import com.indiacybercafe.printhub.models.OrderDraft
 import com.indiacybercafe.printhub.models.OrderModel
+import com.indiacybercafe.printhub.utils.GlobalUploadObserver
+import com.indiacybercafe.printhub.utils.UploadManager
 import com.indiacybercafe.printhub.utils.NotificationHelper
 import com.indiacybercafe.printhub.utils.RazorpayConfig
 import com.razorpay.Checkout
@@ -33,6 +35,7 @@ class PaymentActivity : AppCompatActivity(), PaymentResultListener {
     }
 
     private lateinit var binding: ActivityPaymentBinding
+    private lateinit var uploadObserver: GlobalUploadObserver
     private lateinit var database: DatabaseReference
     private var orderDraft: OrderDraft? = null
     private var orderId: String? = null
@@ -54,6 +57,9 @@ class PaymentActivity : AppCompatActivity(), PaymentResultListener {
             enableEdgeToEdge()
             binding = ActivityPaymentBinding.inflate(layoutInflater)
             setContentView(binding.root)
+
+            uploadObserver = GlobalUploadObserver(this)
+            uploadObserver.startObserving()
 
             ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -223,7 +229,7 @@ class PaymentActivity : AppCompatActivity(), PaymentResultListener {
 
         binding.btnProceed.setOnClickListener {
             if (isProcessing || isOrderCreated) return@setOnClickListener
-            
+
             when (selectedPaymentMethod) {
                 "razorpay" -> {
                     logEvent("PROCEED_RAZORPAY")
@@ -309,7 +315,7 @@ class PaymentActivity : AppCompatActivity(), PaymentResultListener {
                 val draft = orderDraft
                 if (draft != null) {
                     try {
-                        NotificationHelper.sendPaymentFailedNotification(draft.uid, orderId ?: "")
+                        NotificationHelper.sendPaymentFailedNotification(this, draft.uid, orderId ?: "")
                     } catch (e: Exception) {
                         Log.e(TAG, "Notification error: ${e.message}")
                     }
@@ -399,10 +405,10 @@ class PaymentActivity : AppCompatActivity(), PaymentResultListener {
                     // Send Notifications
                     try {
                         if (method == "cod") {
-                            NotificationHelper.sendOrderCreatedNotification(draft.uid, currentOrderId, true)
+                            NotificationHelper.sendOrderCreatedNotification(this, draft.uid, currentOrderId, true)
                         } else {
-                            NotificationHelper.sendPaymentSuccessNotification(draft.uid, currentOrderId)
-                            NotificationHelper.sendOrderCreatedNotification(draft.uid, currentOrderId, false)
+                            NotificationHelper.sendPaymentSuccessNotification(this, draft.uid, currentOrderId)
+                            NotificationHelper.sendOrderCreatedNotification(this, draft.uid, currentOrderId, false)
                         }
                     } catch (e: Exception) {
                         logError("Notification Error: ${e.message}")
@@ -413,6 +419,7 @@ class PaymentActivity : AppCompatActivity(), PaymentResultListener {
                     
                     logEvent("NAVIGATING_SUCCESS_SCREEN")
                     try {
+                        UploadManager.reset(this)
                         val intent = Intent(this, PaymentSuccessActivity::class.java).apply {
                             putExtra("orderId", currentOrderId)
                             putExtra("amount", draft.totalAmount)

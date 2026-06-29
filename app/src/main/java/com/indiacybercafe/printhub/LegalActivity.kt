@@ -32,6 +32,7 @@ class LegalActivity : AppCompatActivity() {
         }
 
         setupRecyclerView()
+        binding.tvAppVersion.text = "ICC PrintHub v${BuildConfig.VERSION_NAME}"
     }
 
     private fun setupRecyclerView() {

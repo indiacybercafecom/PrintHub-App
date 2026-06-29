@@ -1,6 +1,7 @@
 package com.indiacybercafe.printhub;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,12 +14,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import androidx.core.content.ContextCompat;
+
 import com.indiacybercafe.printhub.databinding.ActivityPrintSettingsBinding;
 import com.indiacybercafe.printhub.models.FileModel;
 import com.indiacybercafe.printhub.models.PrintSet;
 import com.indiacybercafe.printhub.models.PrintSettings;
+import com.indiacybercafe.printhub.utils.PageCounter;
 
 import java.util.List;
+import java.util.Locale;
 
 public class PrintSettingsActivity extends AppCompatActivity {
 
@@ -69,15 +74,43 @@ public class PrintSettingsActivity extends AppCompatActivity {
 
     private void calculatePages() {
         totalPages = 0;
+        boolean detectionFailed = false;
+
+        if (selectedFiles == null || selectedFiles.isEmpty()) return;
+
+        // Display details for the first file or a summary
+        FileModel firstFile = selectedFiles.get(0);
+        binding.tvFileName.setText("📄 File: " + firstFile.getFileName());
+        binding.tvFileType.setText("📁 Type: " + firstFile.getCategory());
+        binding.tvFileSize.setText("📏 Size: " + formatFileSize(firstFile.getFileSize()));
+
         for (FileModel file : selectedFiles) {
-            if (file.getCategory().equals("IMAGE")) {
-                totalPages += 1;
-            } else if (file.getCategory().equals("PDF")) {
-                totalPages += 1; // Placeholder
+            Uri fileUri = Uri.parse(file.getDownloadUrl());
+            int pages = PageCounter.getPageCount(this, fileUri, file.getFileName(), file.getCategory());
+
+            if (pages == -1) {
+                detectionFailed = true;
+                file.setPageCount(1); // Default to 1 for pricing fallback
             } else {
-                totalPages += 1; // Default
+                file.setPageCount(pages);
+                totalPages += pages;
             }
         }
+
+        if (detectionFailed) {
+            binding.tvDetectedPages.setText("📑 Actual Pages: Unable to detect pages");
+            binding.tvDetectedPages.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
+        } else {
+            binding.tvDetectedPages.setText("📑 Actual Pages: " + totalPages);
+            binding.tvDetectedPages.setTextColor(ContextCompat.getColor(this, R.color.primary));
+        }
+    }
+
+    private String formatFileSize(long size) {
+        if (size <= 0) return "0 B";
+        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+        return new java.text.DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
     private void setupListeners() {
@@ -136,7 +169,13 @@ public class PrintSettingsActivity extends AppCompatActivity {
         else if (binding.rbSpiral.isChecked()) bindingPrice = 40.0;
 
         currentPrice = (perPagePrice * totalPages * copies) + bindingPrice;
-        binding.tvPrice.setText("₹" + String.format("%.2f", currentPrice));
+        binding.tvPrice.setText("₹" + String.format(Locale.getDefault(), "%.2f", currentPrice));
+
+        // Update Summary Card
+        binding.tvPrintType.setText("🖨 Print Type: " + (isColor ? "Color" : "B&W"));
+        binding.tvCopiesSummary.setText("📋 Copies: " + copies);
+        binding.tvPricePerPage.setText(String.format(Locale.getDefault(), "💰 Price/Page: ₹%.2f", perPagePrice));
+        binding.tvTotalPrice.setText(String.format(Locale.getDefault(), "💵 Total: ₹%.2f", currentPrice));
     }
 
     private void savePrintSet() {

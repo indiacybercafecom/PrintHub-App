@@ -20,6 +20,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.indiacybercafe.printhub.adapters.OrdersAdapter;
 import com.indiacybercafe.printhub.databinding.FragmentOrdersBinding;
@@ -36,6 +37,8 @@ public class OrdersFragment extends Fragment {
     private String uid;
     private List<OrderModel> orderList = new ArrayList<>();
     private OrdersAdapter adapter;
+    private ValueEventListener ordersListener;
+    private com.google.firebase.database.Query ordersQuery;
 
     @Nullable
     @Override
@@ -90,10 +93,11 @@ public class OrdersFragment extends Fragment {
         if (uid == null) return;
 
         binding.progressBar.setVisibility(View.VISIBLE);
-        database.child("orders").orderByChild("uid").equalTo(uid).addValueEventListener(new ValueEventListener() {
+        ordersQuery = database.child("orders").orderByChild("uid").equalTo(uid);
+        ordersListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!isAdded() || binding == null) return;
+                if (_bindingIsNull() || !isAdded() || getView() == null) return;
                 
                 binding.progressBar.setVisibility(View.GONE);
                 orderList.clear();
@@ -118,16 +122,24 @@ public class OrdersFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                if (isAdded() && binding != null) {
+                if (!_bindingIsNull() && isAdded()) {
                     binding.progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        };
+        ordersQuery.addValueEventListener(ordersListener);
+    }
+
+    private boolean _bindingIsNull() {
+        return binding == null;
     }
 
     @Override
     public void onDestroyView() {
+        if (ordersQuery != null && ordersListener != null) {
+            ordersQuery.removeEventListener(ordersListener);
+        }
         super.onDestroyView();
         binding = null;
     }

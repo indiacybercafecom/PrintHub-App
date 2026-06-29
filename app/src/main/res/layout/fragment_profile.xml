@@ -172,15 +172,16 @@
                     android:id="@+id/tvAppVersion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ICC PrintHub v1.0.0"
+                    android:text="ICC PrintHub v1.0.1"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:fontFamily="sans-serif-medium"/>
 
                 <TextView
+                    android:id="@+id/tvBuildVersion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Build 1"
+                    android:text="Build 2"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 

@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.indiacybercafe.printhub.BuildConfig;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +23,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.indiacybercafe.printhub.databinding.FragmentProfileBinding;
 import com.indiacybercafe.printhub.models.UserProfile;
@@ -35,6 +37,8 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private DatabaseReference database;
     private String uid;
+    private ValueEventListener profileListener;
+    private DatabaseReference profileRef;
 
     @Nullable
     @Override
@@ -56,6 +60,9 @@ public class ProfileFragment extends Fragment {
 
         database = FirebaseDatabase.getInstance().getReference();
         uid = FirebaseAuth.getInstance().getUid();
+
+        binding.tvAppVersion.setText("ICC PrintHub v" + BuildConfig.VERSION_NAME);
+        binding.tvBuildVersion.setText("Build " + BuildConfig.VERSION_CODE);
 
         setupMenu();
         loadProfileData();
@@ -115,13 +122,13 @@ public class ProfileFragment extends Fragment {
     private void loadProfileData() {
         if (uid == null) return;
 
-        DatabaseReference profileRef = database.child("users").child(uid).child("profile");
+        profileRef = database.child("users").child(uid).child("profile");
         profileRef.keepSynced(true); // Offline support
 
-        profileRef.addValueEventListener(new ValueEventListener() {
+        profileListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!isAdded() || binding == null) return;
+                if (binding == null || !isAdded() || getView() == null) return;
                 
                 UserProfile profile = snapshot.getValue(UserProfile.class);
                 if (profile != null) {
@@ -165,7 +172,8 @@ public class ProfileFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        };
+        profileRef.addValueEventListener(profileListener);
     }
 
     private void showLogoutDialog() {
@@ -185,6 +193,9 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
+        if (profileRef != null && profileListener != null) {
+            profileRef.removeEventListener(profileListener);
+        }
         super.onDestroyView();
         binding = null;
     }

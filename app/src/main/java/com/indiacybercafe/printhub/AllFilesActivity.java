@@ -196,6 +196,7 @@ public class AllFilesActivity extends AppCompatActivity {
         if (mimeType.contains("excel") || mimeType.contains("spreadsheet")) return "XLS";
         if (mimeType.contains("presentation") || mimeType.contains("powerpoint")) return "PPT";
         if (mimeType.contains("image")) return "IMAGE";
+        if (mimeType.contains("text/plain")) return "TXT";
         return "OTHER";
     }
 
