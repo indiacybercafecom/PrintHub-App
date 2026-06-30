@@ -1,8 +1,16 @@
 package com.indiacybercafe.printhub
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,11 +23,14 @@ import java.util.Locale
 class PaymentSuccessActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPaymentSuccessBinding
+    private var pulseAnimator: ObjectAnimator? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             enableEdgeToEdge()
             super.onCreate(savedInstanceState)
+            Log.e("SUCCESS_DEBUG", "onCreate")
+            
             binding = ActivityPaymentSuccessBinding.inflate(layoutInflater)
             setContentView(binding.root)
 
@@ -27,6 +38,21 @@ class PaymentSuccessActivity : AppCompatActivity() {
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
                 insets
+            }
+
+            // Initialize Success Icon
+            Log.e("SUCCESS_DEBUG", "setImage")
+            binding.ivSuccess.apply {
+                setImageResource(R.drawable.icon_payment_success)
+                visibility = View.VISIBLE
+                alpha = 0f
+                scaleX = 0f
+                scaleY = 0f
+            }
+            
+            Log.e("SUCCESS_DEBUG", "playAnimation")
+            binding.ivSuccess.post {
+                playSuccessAnimation()
             }
 
             val orderId = intent.getStringExtra("orderId") ?: "N/A"
@@ -68,6 +94,50 @@ class PaymentSuccessActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    private fun playSuccessAnimation() {
+        Log.e("SUCCESS_DEBUG", "playSuccessAnimation entered")
+        val view = binding.ivSuccess
+        
+        // STEP 1 & 2: Entry Animation with rotation and pop
+        Log.e("SUCCESS_DEBUG", "rotationStart")
+        
+        view.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .alpha(1f)
+            .rotationBy(720f)
+            .setDuration(800)
+            .setInterpolator(OvershootInterpolator(4f))
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    startPulseAnimation()
+                }
+            })
+            .start()
+    }
+
+    private fun startPulseAnimation() {
+        Log.e("SUCCESS_DEBUG", "pulseStart")
+        val view = binding.ivSuccess
+        
+        // STEP 3: Continuous pulse using PropertyValuesHolder
+        val pvhX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.08f, 1f)
+        val pvhY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.08f, 1f)
+        
+        pulseAnimator = ObjectAnimator.ofPropertyValuesHolder(view, pvhX, pvhY).apply {
+            duration = 900
+            repeatCount = ValueAnimator.INFINITE
+            interpolator = AccelerateDecelerateInterpolator()
+            start()
+        }
+    }
+
+    override fun onDestroy() {
+        pulseAnimator?.cancel()
+        pulseAnimator = null
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
